@@ -69,8 +69,6 @@ unsigned int notes5[] = {C5, C5P, D5, D5P, E5, F5, F5P, G5, G5P, A5, A5P, B5}; /
 #define twinkle 3		// Music option - Twinkle Twinkle Little Star
 #define star_wars 4		//Music option - Soundtrack from Star Wars
 
-#define FREQUENCY 16000000
-
 void play_note_timer0(unsigned int note); // setup a frequency on timer0 to play a given note
 void play(unsigned int note, unsigned int ms); // play the note with the given duration
 void play_happy_birthday();
@@ -78,9 +76,9 @@ void play_twinkle();
 void play_for_elise();
 void play_star_wars();
 
-void delay_ms(unsigned int ms);	
+void custom_delay_ms(unsigned int ms);	
 
-void delay_ms(unsigned int ms)
+void custom_delay_ms(unsigned int ms)
 {
 	//1 ms delay for Atmega128A with XTAL=14,745,600Hz (approximated value)
 	int i,j,k;
@@ -90,13 +88,12 @@ void delay_ms(unsigned int ms)
 	asm("NOP");
 }
 
-
 //Timer0 for built-in song
 void play(unsigned int note, unsigned int ms)
 {
 	play_note_timer0(note);		//setup note parameters on timer0 and start playing
 	
-	delay_ms(ms);			//wait until note is played till the end of the duration
+	custom_delay_ms(ms);			//wait until note is played till the end of the duration
 	
 	TIMSK &= ~(1UL << OCIE0);
 	TCCR0 = 0;				//stop the timer0
@@ -110,26 +107,11 @@ void play_note_timer0(unsigned int note)
 	TCCR0 |= (1 << WGM01) | (1 << CS02);	//CTC mode, prescale = 256
 }
 
-//Timer1A
-void play_note(unsigned int note){
-	OCR1A = note;							//load calculated note number that corresponds to specific frequency
-	TIMSK = (1 << OCIE1A);					//Timer1 Comparator Interrupt is enabled
-	TCCR1B |= (1 << WGM12) | (1 << CS12);	//CTC mode, prescale = 256
-}
-
 ISR(TIMER0_COMP_vect)
 {
 	// every time when timer0 reaches corresponding frequency,
 	// invert the output signal for BUZ, so it creates reflection, which leads to sound generation
 	PORTG = ~(PORTG);
-}
-
-ISR(TIMER1_COMPA_vect){
-	// every time when timer0 reaches corresponding frequency,
-	// invert the output signal for BUZ, so it creates reflection, which leads to sound generation
-	PORTG = ~(PORTG);
-	if(PIND == 0xFF)
-		TIMSK &= ~(1UL << OCIE1A);
 }
 
 
@@ -153,21 +135,21 @@ void play_song(int song){
 
 void play_happy_birthday(){
 	play (D3, 300);
-	delay_ms(100);
+	custom_delay_ms(100);
 	play (D3, 100);
 	play (E3, 400);
 	play (D3, 400);
 	play (G3, 400);
 	play (F3P, 800);
 	play (D3, 400);
-	delay_ms(100);
+	custom_delay_ms(100);
 	play (D3, 100);
 	play (E3, 400);
 	play (D3, 400);
 	play (A3, 400);
 	play (G3, 800);
 	play (D3, 300);
-	delay_ms(100);
+	custom_delay_ms(100);
 	play (D3, 100);
 	play (D4, 400);
 	play (B3, 400);
@@ -184,35 +166,35 @@ void play_happy_birthday(){
 
 void play_twinkle(){
 	play(C5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(C5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(G5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(G5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(A5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(A5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(G5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(F5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(F5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(E5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(E5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(E5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(D5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(D5, 200);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(C5, 500);
-	delay_ms(350);
+	custom_delay_ms(350);
 	play(C5, 1000);
 }
 
@@ -225,21 +207,21 @@ void play_for_elise(){
 	play(D5, 300);
 	play(C5P, 300);
 	play(A4, 600);
-	delay_ms(300);
+	custom_delay_ms(300);
 	
 	//Part 2
 	play(C4, 300);
 	play(E4, 300);
 	play(A4, 300);
 	play(B4, 600);
-	delay_ms(300);
+	custom_delay_ms(300);
 	
 	//Part 3
 	play(E4, 300);
 	play(G4P, 300);
 	play(B4, 300);
 	play(C4P, 600);
-	delay_ms(300);
+	custom_delay_ms(300);
 	
 	//smooth move
 	play(E4, 300);
@@ -252,21 +234,21 @@ void play_for_elise(){
 	play(D5, 300);
 	play(C5P, 300);
 	play(A4, 600);
-	delay_ms(300);
+	custom_delay_ms(300);
 	
 	//Part 2
 	play(C4, 300);
 	play(E4, 300);
 	play(A4, 300);
 	play(B4, 600);
-	delay_ms(300);
+	custom_delay_ms(300);
 	
 	//Part 4
 	play(E4, 300);
 	play(C5P, 300);
 	play(B4, 300);
 	play(A4, 600);
-	delay_ms(300);
+	custom_delay_ms(300);
 }
 
 void play_star_wars(){
@@ -278,7 +260,7 @@ void play_star_wars(){
 	play(E5, 200);
 	
 	play(B4, 100);
-	delay_ms(100);
+	custom_delay_ms(100);
 	play(A4P, 100);
 	play(B4, 200);
 	
@@ -286,12 +268,12 @@ void play_star_wars(){
 	play(A4P, 100);
 	play(B4, 100);
 	play(A4, 100);
-	delay_ms(100);
+	custom_delay_ms(100);
 	
 	play(G4P, 100);
 	play(A4, 100);
 	play(G4, 100);
-	delay_ms(100);
+	custom_delay_ms(100);
 	play(G4P, 100);
 	play(A4, 100);
 	play(G4, 100);
@@ -307,7 +289,7 @@ void play_star_wars(){
 	play(B4, 100);
 	play(E5, 200);
 	play(B4, 100);
-	delay_ms(100);
+	custom_delay_ms(100);
 	play(A4P, 100);
 	play(B4, 200);
 }

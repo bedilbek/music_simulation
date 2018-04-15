@@ -8,6 +8,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "play.h"
+#include "keypad.h"
 
 unsigned char temp; // to get keyboard input to play a note
 
@@ -26,7 +27,8 @@ int main(void)
 	
 	// This loop keeps playing forever, so the main functionality
 	// of the program is below
-	while(1)
+	int end = 1;
+	while(end)
 	{
 		DDRB = 0xff;
 		
@@ -65,13 +67,17 @@ int main(void)
 				play_note(notes5[6]);
 				break;
 			}
-			case 127: {					// if 8th pin of PORTD is pressed
-				if (option > 3)			// check whether option is not out of range of music samples
+			case 127: {		
+				end = 0;
+				// if 8th pin of PORTD is pressed
+				/*if (option > 3)			// check whether option is not out of range of music samples
 					option = -1;
 				option++;				// play next embedded music sample
 				play_song(option);
-				break;
+				break;*/
 			}
 		}		
 	}
+	
+	showNotes();
 }
