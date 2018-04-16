@@ -28,12 +28,10 @@ int main(void)
 	// This loop keeps playing forever, so the main functionality
 	// of the program is below
 	int end = 1;
+	DDRB = 0xff;
+	DDRD = 0x00; //ready for input
 	while(end)
 	{
-		DDRB = 0xff;
-		
-		DDRD = 0x00; //ready for input
-		
 		temp = PIND; //store keyboard input for temporary variable
 		PORTB = PIND;
 		
@@ -79,5 +77,10 @@ int main(void)
 		}		
 	}
 	
+	PORTB = 0xFF;
+	_delay_ms(1000);
 	showNotes();
+	PORTB = 0xFF;
+	
+	return 0;
 }

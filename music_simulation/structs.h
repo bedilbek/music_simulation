@@ -10,8 +10,8 @@
 #define STRUCTS_H_
 
 struct played_note{
-	int counter;
-	int note;
+	int8_t counter;
+	int8_t note;
 };
 
 
