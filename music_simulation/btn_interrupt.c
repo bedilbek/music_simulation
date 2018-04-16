@@ -6,9 +6,8 @@
  */
 
 ////////////////////////
-/////	ONLY UNTIL PD3 IS WORKING
-////	SHOULD BE FIXED AND 
-////	THIS CODE CAN BE USED IN THE PROJECT
+///// INT0-3 for PORTD.0-3
+///// INT4-7 for PORTE.4-7
 ///////////////////////
 ///////////////////////
 
