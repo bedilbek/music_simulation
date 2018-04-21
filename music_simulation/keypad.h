@@ -10,6 +10,7 @@
 #define KEYPAD_H_
 
 #include "structs.h"
+#include "play.h"
 
 #define F_CPU 16000000UL  // 16 MHz
 #include <util/delay.h>
@@ -19,6 +20,8 @@
 struct played_note buffer[BUFFER_SIZE];
 int8_t i = 0;
 int8_t counter = 0;
+int8_t isRecordingEnabled = 0;
+int8_t recordIndex = 0;
 
 //Timer1A
 void play_note(unsigned int note){
@@ -38,6 +41,20 @@ ISR(TIMER1_COMPA_vect){
 		TIMSK &= ~(1UL << OCIE1A);
 		buffer[i].counter = counter;
 		i++;
+	}
+}
+
+//delay should be added because time between the notes are different
+void play_record(){
+	recordIndex = 0;
+	int8_t j;
+	while(recordIndex < i){
+		j = 0;
+		while(j < buffer[recordIndex].counter){
+			play_note_timer0(buffer[recordIndex].note);
+			j++;
+		}
+		recordIndex++;
 	}
 }
 

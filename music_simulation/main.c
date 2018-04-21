@@ -7,7 +7,6 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "play.h"
 #include "keypad.h"
 
 unsigned char temp; // to get keyboard input to play a note
@@ -27,10 +26,10 @@ int main(void)
 	
 	// This loop keeps playing forever, so the main functionality
 	// of the program is below
-	int end = 1;
+	int isRecordingOn = 0;
 	DDRB = 0xff;
 	DDRD = 0x00; //ready for input
-	while(end)
+	while(1)
 	{
 		temp = PIND; //store keyboard input for temporary variable
 		PORTB = PIND;
@@ -66,7 +65,13 @@ int main(void)
 				break;
 			}
 			case 127: {		
-				end = 0;
+				if(isRecordingOn == 0){	
+					isRecordingEnabled = 1;
+					isRecordingOn = 1;
+				}else{
+					isRecordingEnabled = 0;
+					isRecordingOn = 0;
+				}
 				// if 8th pin of PORTD is pressed
 				/*if (option > 3)			// check whether option is not out of range of music samples
 					option = -1;
@@ -76,11 +81,6 @@ int main(void)
 			}
 		}		
 	}
-	
-	PORTB = 0xFF;
-	_delay_ms(1000);
-	showNotes();
-	PORTB = 0xFF;
 	
 	return 0;
 }

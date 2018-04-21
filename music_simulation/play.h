@@ -83,9 +83,9 @@ void custom_delay_ms(unsigned int ms)
 	//1 ms delay for Atmega128A with XTAL=14,745,600Hz (approximated value)
 	int i,j,k;
 	for (i=0; i<ms; i++)
-	for (j=0; j<12; j++)
-	for (k=0; k<233; k++)
-	asm("NOP");
+		for (j=0; j<12; j++)
+			for (k=0; k<233; k++)
+				asm("NOP");
 }
 
 //Timer0 for built-in song
