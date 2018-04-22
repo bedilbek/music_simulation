@@ -88,23 +88,29 @@ void custom_delay_ms(unsigned int ms)
 				asm("NOP");
 }
 
-//Timer0 for built-in song
-void play(unsigned int note, unsigned int ms)
-{
-	play_note_timer0(note);		//setup note parameters on timer0 and start playing
-	
-	custom_delay_ms(ms);			//wait until note is played till the end of the duration
-	
+void initTimer0(){
+	TIMSK = (1 << OCIE0);	//Timer0 Comparator Interrupt is enabled
+	TCCR0 |= (1 << WGM01) | (1 << CS02);	//CTC mode, prescale = 256
+}
+
+void stopTimer0(){
 	TIMSK &= ~(1UL << OCIE0);
 	TCCR0 = 0;				//stop the timer0
 	TIFR = (1 << OCF0);		//Clear the timer0 Comparator Match flag
 }
 
+//Timer0 for built-in song
+void play(unsigned int note, unsigned int ms)
+{
+	play_note_timer0(note);		//setup note parameters on timer0 and start playing
+	custom_delay_ms(ms);			//wait until note is played till the end of the duration
+	stopTimer0();	
+}
+
 void play_note_timer0(unsigned int note)
 {
 	OCR0 = note;			//load calculated note number that corresponds to specific frequency
-	TIMSK = (1 << OCIE0);	//Timer0 Comparator Interrupt is enabled
-	TCCR0 |= (1 << WGM01) | (1 << CS02);	//CTC mode, prescale = 256
+	initTimer0();
 }
 
 ISR(TIMER0_COMP_vect)
@@ -113,7 +119,6 @@ ISR(TIMER0_COMP_vect)
 	// invert the output signal for BUZ, so it creates reflection, which leads to sound generation
 	PORTG = ~(PORTG);
 }
-
 
 
 ///////////////////////////////////////////////
