@@ -13,6 +13,8 @@ unsigned char temp; // to get keyboard input to play a note
 
 unsigned char option; //to choose the embedded music to play
 
+#define DELAY 1000
+
 int main(void)
 {
     DDRG = 0xff; // To send sound to BUZ speakers (BUZ is connected to PG.4)
@@ -26,13 +28,12 @@ int main(void)
 	
 	// This loop keeps playing forever, so the main functionality
 	// of the program is below
-	int isRecordingOn = 0;
 	DDRB = 0xff;
 	DDRD = 0x00; //ready for input
 	while(1)
 	{
 		temp = PIND; //store keyboard input for temporary variable
-		PORTB = PIND;
+		//PORTB = PIND;
 		
 		switch(temp)
 		{
@@ -65,12 +66,17 @@ int main(void)
 				break;
 			}
 			case 127: {		
-				if(isRecordingOn == 0){	
-					isRecordingEnabled = 1;
-					isRecordingOn = 1;
+				if(isRecordingEnabled){
+					disableRecording();
+					toggleLED();
+					custom_delay_ms(DELAY);
+					toggleLED();	
+					custom_delay_ms(DELAY);
+					custom_delay_ms(DELAY);
+					play_record();
 				}else{
-					isRecordingEnabled = 0;
-					isRecordingOn = 0;
+					toggleLED();
+					enableRecording();
 				}
 				// if 8th pin of PORTD is pressed
 				/*if (option > 3)			// check whether option is not out of range of music samples

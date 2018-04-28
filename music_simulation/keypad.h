@@ -16,44 +16,62 @@
 #include <util/delay.h>
 
 
-#define BUFFER_SIZE
+#define BUFFER_SIZE 100
 struct played_note buffer[BUFFER_SIZE];
-int8_t i = 0;
-int8_t counter = 0;
+int i = 0;
 int8_t isRecordingEnabled = 0;
 int8_t recordIndex = 0;
-int8_t isPressed = 0;
 int8_t pressedNote;
+int8_t isPressed = 0;
+int8_t isPlaying = 0;
+unsigned int ms_count = 0;
+
+#define INTERVAL 100
+#define DELAY_VALUE 0xFF
+
+void toggleLED();
+
+void initTimer1();
+void stopTimer1();
+
+void enableRecording();
+void disableRecording();
+
+void play_record();
+//using Timer1A
+void play_note_during(unsigned int note, unsigned int duration);
+//using Timer1A
+void play_note(unsigned int note);
+
+
+void toggleLED(){
+	PORTB = 0x00;
+	custom_delay_ms(INTERVAL * 5);
+	PORTB = 0xFF;
+}
 
 ISR(TIMER1_COMPA_vect){
 	// every time when timer0 reaches corresponding frequency,
 	// invert the output signal for BUZ, so it creates reflection, which leads to sound generation
+	//check whether the key was pressed because
+	//when the recording is enabled the interrupt is working make sound
+	if(isPressed || isPlaying)
 	PORTG = ~(PORTG);
 	
 	if(isRecordingEnabled){
-		counter += isPressed;
-		if(PIND == 0xFF){
-			//note was pressed and delay is started
-			if(isPressed == 1){
-				//store counter and note
-				buffer[i] = counter;
-				buffer[i] = pressedNote;
-				//start new delay counting
-				counter = 0;
-				isPressed = -1;
-				//value for delay, not possible to press all keys, so it is suitable for delay
-				buffer[++i].note = 0xFF;
-				buffer[i].counter = counter;
-			}
-		}else{
-			//note is played and isPressed value is negative, so we need to store the value for delay
-			if(isPressed == -1){
-				//store counter of delay
-				buffer[i].counter = counter;
-				//start new counter for the note pressed
-				counter = 0;
-				isPressed = 1;
-				i++;
+		if(PIND == DELAY_VALUE)
+		pressedNote = DELAY_VALUE;
+		if(i == 0){
+			buffer[i].note = pressedNote;
+			buffer[i].counter = 0;
+			i++;
+			}else{
+			if(buffer[i - 1].note == pressedNote){
+				//the same note is being pressed
+				buffer[i - 1].counter++;
+				}else{
+				buffer[i++].note = pressedNote;
+				buffer[i].counter = 0;
 			}
 		}
 	}
@@ -73,47 +91,47 @@ void stopTimer1(){
 void enableRecording(){
 	isRecordingEnabled = 1;
 	i = 0;
+	ms_count = 0;
 	initTimer1();
 }
 
 void disableRecording(){
 	isRecordingEnabled = 0;
-	isPressed = 0;
 	stopTimer1();
 }
 
 //Timer1A
-void play_note(unsigned int note){
+void play_note_during(unsigned int note, unsigned int duration){
 	OCR1A = note;
-	if(isRecordingEnabled)	{
-		counter = 0;
-		isPressed = 1;
-		pressedNote = note;
-	}
-				
+	pressedNote = note;
+	
+	isPressed = 1;
+	
 	initTimer1();
+	custom_delay_ms(duration);
+	stopTimer1();
+	
+	isPressed = 0;
 }
 
-//delay should be added because time between the notes are different
+//Timer1A
+void play_note(unsigned int note){
+	play_note_during(note, INTERVAL);
+}
+
 void play_record(){
+	isPlaying = 1;
 	recordIndex = 0;
-	int8_t j;
+	int duration;
 	while(recordIndex < i){
-		j = 0;
-		while(j < buffer[recordIndex].counter){
-			play_note_timer0(buffer[recordIndex].note);
-			j++;
-		}
+		duration = INTERVAL * buffer[recordIndex].counter;
+		if(buffer[recordIndex].note == DELAY_VALUE)
+		custom_delay_ms(duration);
+		else
+		play_note_during(buffer[recordIndex].note, duration);
 		recordIndex++;
 	}
-}
-
-void showNotes(){
-	int8_t j = 0;
-	while(j < i){
-		PORTB = buffer[j++].note;
-		_delay_ms(1000);
-	}
+	isPlaying = 0;
 }
 
 
