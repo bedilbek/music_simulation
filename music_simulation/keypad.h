@@ -12,9 +12,6 @@
 #include "structs.h"
 #include "play.h"
 
-#define F_CPU 16000000UL  // 16 MHz
-#include <util/delay.h>
-
 
 #define BUFFER_SIZE 100
 struct played_note buffer[BUFFER_SIZE];
@@ -26,7 +23,7 @@ int8_t isPressed = 0;
 int8_t isPlaying = 0;
 unsigned int ms_count = 0;
 
-#define INTERVAL 100
+#define INTERVAL 1
 #define DELAY_VALUE 0xFF
 
 void toggleLED();
@@ -43,11 +40,11 @@ void play_note_during(unsigned int note, unsigned int duration);
 //using Timer1A
 void play_note(unsigned int note);
 
-
-void toggleLED(){
-	PORTB = 0x00;
-	custom_delay_ms(INTERVAL * 5);
-	PORTB = 0xFF;
+void initKeypads(){
+	KEYPADS_ROW_DDR = 0xFF;
+	KEYPADS_ROW_PORT = 0x00;
+	KEYPADS_COL_DDR = 0x00;
+	KEYPADS_COL_PIN = 0xFF;
 }
 
 ISR(TIMER1_COMPA_vect){
@@ -56,11 +53,13 @@ ISR(TIMER1_COMPA_vect){
 	//check whether the key was pressed because
 	//when the recording is enabled the interrupt is working make sound
 	if(isPressed || isPlaying)
-	PORTG = ~(PORTG);
+		PORTG = ~(PORTG);
 	
 	if(isRecordingEnabled){
+		//int temp = PIND;
+		
 		if(PIND == DELAY_VALUE)
-		pressedNote = DELAY_VALUE;
+			pressedNote = DELAY_VALUE;
 		if(i == 0){
 			buffer[i].note = pressedNote;
 			buffer[i].counter = 0;
@@ -122,7 +121,7 @@ void play_note(unsigned int note){
 void play_record(){
 	isPlaying = 1;
 	recordIndex = 0;
-	int duration;
+	unsigned int duration;
 	while(recordIndex < i){
 		duration = INTERVAL * buffer[recordIndex].counter;
 		if(buffer[recordIndex].note == DELAY_VALUE)
@@ -133,6 +132,5 @@ void play_record(){
 	}
 	isPlaying = 0;
 }
-
 
 #endif /* KEYPAD_H_ */
