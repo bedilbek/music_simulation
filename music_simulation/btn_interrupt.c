@@ -6,11 +6,12 @@
  */
 
 ////////////////////////
-///// INT0-3 for PORTD.0-3
-///// INT4-7 for PORTE.4-7
+/////	ONLY UNTIL PD3 IS WORKING
+////	SHOULD BE FIXED AND 
+////	THIS CODE CAN BE USED IN THE PROJECT
 ///////////////////////
 ///////////////////////
-
+/*
 #include <avr/io.h>
 #include <avr//interrupt.h>
 
@@ -57,16 +58,12 @@ ISR(INT7_vect){
 	PORTB = 0xFF;
 }
 
-int main(void)
+/*int main(void)
 {
 	DDRB = 0xFF;
 	DDRD = 0x00;
 	PORTB = 0xFF;
-	EIMSK = 0xFF;
-	EICRA = 0xFF;
-	EICRB = 0xFF;
-	EIFR = 0xFF;
+
 	sei();
 	while(1);
-}
-
+}*/

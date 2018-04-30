@@ -20,8 +20,6 @@
 #define twinkle 3		// Music option - Twinkle Twinkle Little Star
 #define star_wars 4		//Music option - Soundtrack from Star Wars
 
-int option = happy_bday;
-
 // setup a frequency on timer0 to play a given note
 void play_note_timer0(unsigned int note);
 // play the note with the given duration
@@ -43,8 +41,8 @@ void custom_delay_ms(unsigned int ms){
 
 void initPlay(){
 	// To send sound to BUZ speakers (BUZ is connected to PB.4)
-	SOUND_DDR = 0xFF;
-	SOUND_PORT = 0xFF;
+	SOUND_DDR |= (1 << SOUND_BIT);
+	SOUND_PORT |= (1 << SOUND_BIT);
 }
 
 void initTimer0(){
@@ -76,7 +74,7 @@ ISR(TIMER0_COMP_vect)
 {
 	// every time when timer0 reaches corresponding frequency,
 	// invert the output signal for BUZ, so it creates reflection, which leads to sound generation
-	PORTG = ~(PORTG);
+	SOUND_PORT ^= 1UL << SOUND_BIT;
 }
 
 
@@ -86,10 +84,7 @@ ISR(TIMER0_COMP_vect)
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 
-void play_song(){
-	if(option > star_wars)
-	option = happy_bday;
-	
+void play_song(unsigned char option){	
 	if(option == happy_bday)
 	play_happy_birthday();
 	else if(option == for_elise)
@@ -98,8 +93,6 @@ void play_song(){
 	play_twinkle();
 	else if(option == star_wars)
 	play_star_wars();
-	
-	option++;
 }
 
 void play_happy_birthday(){

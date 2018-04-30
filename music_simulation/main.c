@@ -17,8 +17,11 @@ unsigned char temp; // to get keyboard input to play a note
 
 int main(void){
 	initPlay();
-	initKeypads();	
 	initCtrlButtons();
+	initKeypads();	
+	HC595Init();
+	
+	PORTB = 0xFF;
 	
 	//Set Interrupt flag as enabled in SREG register
 	sei();
@@ -27,20 +30,25 @@ int main(void){
 	unsigned char j;
 	unsigned char keypad;
 	
+// 	while(1){
+// 		play_song(happy_bday);
+// 	}
+
 	while(1){
-		for (i = 0; i < ROW_COUNT; i++){
-			//giving 1 to the PORT
-			KEYPADS_ROW_PORT = (1 << i);
-			for (j = 0; j < COL_COUNT; j++){
-				keypad = PINA;
-				if (keypad & (1 <<  j)){
-					//note i,j is pressed
-					play_note(keypad_notes[i][j]);
-					
-				}
-			}
-			KEYPADS_ROW_PORT &= ~(1 << i);
-		}
+		KEYPADS_ROW_PORT |= 0x7F;
+// 		unsigned int keypad;
+// 		unsigned row = -1, col = -1;
+// 		for (unsigned char k = 0; k < ROW_COUNT; k++){
+// 			//giving 1 to the PORT
+// 			KEYPADS_ROW_PORT = (1 << k);
+// 			for (unsigned char l = 0; l < COL_COUNT; l++){
+// 				keypad = KEYPADS_COL_PIN;
+// 				if (keypad & (1 <<  l)){
+// 					play_note(keypad_notes[k][l]);
+// 				}
+// 			}
+// 			KEYPADS_ROW_PORT &= ~(1 << i);
+// 		}
 	}
 	
 	return 0;

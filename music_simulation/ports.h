@@ -21,17 +21,22 @@
 #define LCD_BTN_PIN PIND
 #define LCD_BTN_DDR DDRD
 
-#define SOUND_PORT PORTB
-#define SOUND_DDR DDRB
+#define SOUND_PORT PORTF
+#define SOUND_DDR DDRF
+#define SOUND_BIT 7
 
-#define RECORD_PIN PE4
-#define PLAY_RECORD_PIN PE5
-#define PLAY_SONG PE6
-#define RECORD_LED PE7
+#define RECORD_PIN PD0
+#define PLAY_RECORD_PIN PD1
+#define GAME_START_PIN PD2
+#define RECORD_LED_PIN PD3
 
-#define RECORD_INT_VECTOR INT4_vect
-#define PLAY_RECORD_VECTOR INT5_vect
-#define PLAY_SONG_VECTOR INT6_vect
+//#define RECORD_INT_VECTOR INT4_vect
+#define PLAY_RECORD_INT_VEC INT1_vect
+#define GAME_START_INT_VEC INT2_vect
 
+#define KEYPAD_EXTERNAL_INT_VEC INT4_vect
+#define KEYPAD_PIN PE4
+#define KEYPAD_PORT PORTE
+#define KEYPAD_DDR DDRE
 
 #endif /* PORTS_H_ */

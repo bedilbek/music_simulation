@@ -11,7 +11,7 @@
 
 #include "structs.h"
 #include "play.h"
-
+#include "keypad_notes.h"
 
 #define BUFFER_SIZE 100
 struct played_note buffer[BUFFER_SIZE];
@@ -26,8 +26,6 @@ unsigned int ms_count = 0;
 #define INTERVAL 1
 #define DELAY_VALUE 0xFF
 
-void toggleLED();
-
 void initTimer1();
 void stopTimer1();
 
@@ -40,11 +38,39 @@ void play_note_during(unsigned int note, unsigned int duration);
 //using Timer1A
 void play_note(unsigned int note);
 
+
 void initKeypads(){
 	KEYPADS_ROW_DDR = 0xFF;
 	KEYPADS_ROW_PORT = 0x00;
 	KEYPADS_COL_DDR = 0x00;
 	KEYPADS_COL_PIN = 0xFF;
+	
+	KEYPAD_DDR = (1 << KEYPAD_PIN);
+}
+
+ISR(KEYPAD_EXTERNAL_INT_VEC){
+	PORTB = 0xF0;
+	
+	KEYPADS_ROW_PORT &= 0x80;
+	
+	unsigned int keypad;
+	unsigned row = -1, col = -1;
+	for (unsigned char k = 0; k < ROW_COUNT; k++){
+		//giving 1 to the PORT
+		KEYPADS_ROW_PORT = (1 << k);
+		for (unsigned char l = 0; l < COL_COUNT; l++){
+			keypad = KEYPADS_COL_PIN;
+			if (keypad & (1 <<  l)){
+				row = k;
+				col = l;
+			}
+		}
+		KEYPADS_ROW_PORT &= ~(1 << i);
+	}
+	
+	play_note(keypad_notes[row][col]);
+	
+	KEYPADS_ROW_PORT |= 0x7F;
 }
 
 ISR(TIMER1_COMPA_vect){
@@ -53,13 +79,29 @@ ISR(TIMER1_COMPA_vect){
 	//check whether the key was pressed because
 	//when the recording is enabled the interrupt is working make sound
 	if(isPressed || isPlaying)
-		PORTG = ~(PORTG);
+		SOUND_PORT ^= 1UL << SOUND_BIT;
 	
 	if(isRecordingEnabled){
-		//int temp = PIND;
+		unsigned int keypad;
+		unsigned row = -1, col = -1;
+		for (unsigned char k = 0; k < ROW_COUNT; k++){
+			//giving 1 to the PORT
+			KEYPADS_ROW_PORT = (1 << k);
+			for (unsigned char l = 0; l < COL_COUNT; l++){
+				keypad = PINA;
+				if (keypad & (1 <<  l)){
+					row = k;
+					col = l;
+				}
+			}
+			KEYPADS_ROW_PORT &= ~(1 << i);
+		}
 		
-		if(PIND == DELAY_VALUE)
+		if(row != -1 && col != -1)
+			pressedNote = keypad_notes[row][col];
+		else
 			pressedNote = DELAY_VALUE;
+		
 		if(i == 0){
 			buffer[i].note = pressedNote;
 			buffer[i].counter = 0;
